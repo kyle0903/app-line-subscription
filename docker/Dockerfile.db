@@ -1,0 +1,7 @@
+FROM postgres:16
+
+COPY ./database/init.sql /docker-entrypoint-initdb.d/
+
+EXPOSE 5432
+
+CMD ["postgres"]

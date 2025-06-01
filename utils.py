@@ -1,5 +1,6 @@
 import random
-from enums import UserState, Action
+from schema.users import UserProfile
+from schema.enums import UserState, Action
 
 
 def generate_invite_code(length=8):
@@ -28,19 +29,18 @@ def generate_invite_code(length=8):
     
     return ''.join(code)
 
-def action_message(text, user_id, user_states):
-    print(text == Action.CREATE)
+def action_message(text, user: UserProfile):
     if text == Action.CREATE:
         # 設置用戶狀態為等待輸入訂閱名稱
-        user_states[user_id] = UserState.WAITING_FOR_NAME
+        user.status = UserState.WAITING_FOR_NAME
         return "請輸入訂閱名稱："
-    elif user_id in user_states and user_states[user_id] == UserState.WAITING_FOR_NAME:
+    elif user.status == UserState.WAITING_FOR_NAME:
         # 用戶已輸入訂閱名稱，產生訂閱碼
         subscription_name = text
         # 隨機產生四位數字和兩位英文字母
         random_number = generate_invite_code()
         # 清除用戶狀態
-        del user_states[user_id]
+        user.status = 0
         return f"訂閱名稱：{subscription_name}\n您的群組邀請碼為：{random_number}"
     else:
         return f"您傳送了: " + text

@@ -1,0 +1,37 @@
+services:
+  db:
+    container_name: line-subscription-db
+    build:
+      dockerfile: ./docker/Dockerfile.db
+    ports:
+      - 5432:5432
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database/data:/var/lib/postgresql/data
+    networks:
+      - app-network
+  app:
+    container_name: app-line-subscription
+    build:
+      dockerfile: ./docker/Dockerfile.dev
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+    env_file:
+      - .env
+    volumes:
+      - ./:/app
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge

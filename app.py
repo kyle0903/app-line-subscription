@@ -12,7 +12,12 @@ from dotenv import load_dotenv
 import uvicorn
 import logging
 from utils import action_message
-
+from datetime import datetime
+from schema.users import UserProfile
+from schema.enums import UserRole
+from db import get_user, create_user
+from linebot.v3.messaging import Configuration, ApiClient, MessagingApi
+import uuid
 
 # 設置日誌
 logging.basicConfig(level=logging.INFO)
@@ -25,10 +30,16 @@ load_dotenv()
 LINE_CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET")
 LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN")
 
+configuration = Configuration(
+    access_token=LINE_CHANNEL_ACCESS_TOKEN
+)
+
+client = ApiClient(configuration)
+messaging_api = MessagingApi(client)
+
+
 app = FastAPI()
 
-# 用於儲存用戶狀態的字典
-user_states = {}
 
 @app.head("/")
 async def head():
@@ -70,10 +81,22 @@ async def line_webhook(request: Request, x_line_signature: Optional[str] = Heade
                 message_type = event.get("message", {}).get("type")
                 reply_token = event.get("replyToken")
                 user_id = event.get("source").get("userId")
-                
+                username = messaging_api.get_profile(user_id).display_name
+                user_info = UserProfile(
+                    line_id=user_id,
+                    name=username,
+                    status=0,
+                    role=UserRole.ADMIN,
+                    group_id=uuid.uuid4(),
+                    created_at=datetime.now(),
+                    updated_at=datetime.now()
+                )
+                user = get_user(user_id)
+                if user is None:
+                    user = create_user(user_info)
                 if message_type == "text":
                     text = event.get("message", {}).get("text", "")
-                    action_text = action_message(text, user_id, user_states)
+                    action_text = action_message(text, user)
                     await reply_message(reply_token, [{
                         "type": "text",
                         "text": action_text

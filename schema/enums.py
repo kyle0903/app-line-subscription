@@ -7,6 +7,10 @@ class Action(str, Enum):
     LIST = "查看訂閱群組"
     HELP = "查看幫助"
 
+class UserRole(str, Enum):
+    USER = "user"
+    ADMIN = "admin"
+
 class UserState(str, Enum):
     WAITING_FOR_NAME = "等待輸入訂閱名稱"
     WAITING_FOR_CODE = "等待輸入邀請碼"
