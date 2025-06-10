@@ -1,11 +1,21 @@
 -- 創建一個users的table
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    line_id VARCHAR(255) NOT NULL,
-    name VARCHAR(255) NOT NULL,
+    line_id VARCHAR(255) NOT NULL UNIQUE,
+    username VARCHAR(255) NOT NULL,
     status INTEGER NOT NULL,
     role VARCHAR(255) NOT NULL,
     group_id UUID NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE subscriptions (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    code VARCHAR(255) NOT NULL,
+    manager_id INTEGER NOT NULL REFERENCES users(line_id),
+    members VARCHAR(255)[] NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
