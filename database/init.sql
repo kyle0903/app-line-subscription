@@ -12,7 +12,7 @@ CREATE TABLE users (
 
 CREATE TABLE subscriptions (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    subscription_name VARCHAR(255) NOT NULL,
     code VARCHAR(255) NOT NULL,
     manager_id INTEGER NOT NULL REFERENCES users(line_id),
     members VARCHAR(255)[] NOT NULL,
